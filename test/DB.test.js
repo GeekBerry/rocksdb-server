@@ -25,6 +25,9 @@ test('set get del', async () => {
 test('batch list', async () => {
   let ret;
 
+  ret = await client.list();
+  expect(ret).toEqual([]);
+
   ret = await client.batch([
     { type: 'put', key: Buffer.from('key1'), value: Buffer.from('value1') },
     { type: 'put', key: 'key2', value: 'value2' },
@@ -81,6 +84,26 @@ test('batch list', async () => {
 
   expect(await client.keys()).toEqual(['key1', 'key4', 'key5']);
   expect(await client.values()).toEqual(['value1', 'value4', 'value5']);
+});
+
+test('all', async () => {
+  await Promise.all([
+    client.set('A', 'apple'),
+    client.set('B', 'boy'),
+    client.set('C', 'cat'),
+    client.set('D', 'dog'),
+    client.set('E', 'empty'),
+  ]);
+
+  const values = await Promise.all([
+    client.get('A'),
+    client.get('B'),
+    client.get('C'),
+    client.get('D'),
+    client.get('E'),
+  ]);
+
+  expect(values).toEqual(['apple', 'boy', 'cat', 'dog', 'empty']);
 });
 
 afterAll(async () => {
