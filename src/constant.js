@@ -1,6 +1,7 @@
 module.exports = {
   EMPTY_BUFFER: Buffer.alloc(0),
 
+  // in order to check operate correct, hash code by string.
   CODE: {
     SET: Buffer.from('SET ').readInt32LE(),
     DEL: Buffer.from('DELE').readInt32LE(),

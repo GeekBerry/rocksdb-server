@@ -1,12 +1,12 @@
-const { DBServer, DBClient } = require('../src');
+const { Server, Client } = require('../src');
 const { EMPTY_BUFFER } = require('../src/constant');
 
 let server;
 let client;
 
 beforeAll(async () => {
-  server = new DBServer({ host: '127.0.0.1', port: 6081, location: './testDBServerData' });
-  client = new DBClient({ host: '127.0.0.1', port: 6081 });
+  server = new Server({ host: '127.0.0.1', port: 6081, location: './testDBServerData' });
+  client = new Client({ host: '127.0.0.1', port: 6081 });
 
   await server.database.clear();
 });
@@ -77,19 +77,19 @@ test('batch list', async () => {
     { key: Buffer.from('key3'), value: Buffer.from('value3') },
   ]);
 
-  ret = await client.list({ gte: Buffer.from('key1'), lte: Buffer.from('key4') });
+  ret = await client.list({ gte: 'key1', lte: 'key4' });
   expect(ret).toEqual([
     { key: Buffer.from('key1'), value: Buffer.from('value1') },
     { key: Buffer.from('key3'), value: Buffer.from('value3') },
     { key: Buffer.from('key4'), value: Buffer.from('value4') },
   ]);
 
-  ret = await client.list({ gt: Buffer.from('key1'), lt: Buffer.from('key4') });
+  ret = await client.list({ gt: 'key1', lt: 'key4' });
   expect(ret).toEqual([
     { key: Buffer.from('key3'), value: Buffer.from('value3') },
   ]);
 
-  ret = await client.clear({ gt: Buffer.from('key1'), lt: Buffer.from('key4') });
+  ret = await client.clear({ gt: 'key1', lt: 'key4' });
   expect(ret).toEqual(undefined);
 
   ret = await client.list();

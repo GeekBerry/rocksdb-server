@@ -3,7 +3,7 @@ const RocksDB = require('../lib/RocksDB');
 const { BufferServer } = require('../lib/buffer-socket');
 const { CODE } = require('./constant');
 
-class DBServer {
+class Server {
   constructor(options) {
     this.database = new RocksDB(options);
     this.server = new BufferServer(options, this.middleware.bind(this));
@@ -56,21 +56,28 @@ class DBServer {
   }
 
   async onBatch(input) {
-    const length = input.readInt();
-
     const array = [];
 
+    const length = input.readInt();
     for (let i = 0; i < length; i += 1) {
       const code = input.readInt();
-      if (code === CODE.SET) {
-        const key = input.readBuffer();
-        const value = input.readBuffer();
-        array.push({ type: 'put', key, value });
-      } else if (code === CODE.DEL) {
-        const key = input.readBuffer();
-        array.push({ type: 'del', key });
-      } else {
-        throw new Error(`unexpected code="${code}"`);
+      let key;
+      let value;
+
+      switch (code) {
+        case CODE.SET:
+          key = input.readBuffer();
+          value = input.readBuffer();
+          array.push({ type: 'put', key, value });
+          break;
+
+        case CODE.DEL:
+          key = input.readBuffer();
+          array.push({ type: 'del', key });
+          break;
+
+        default:
+          throw new Error(`unexpected code="${code}"`);
       }
     }
 
@@ -128,4 +135,4 @@ class DBServer {
   }
 }
 
-module.exports = DBServer;
+module.exports = Server;

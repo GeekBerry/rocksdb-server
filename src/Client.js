@@ -1,7 +1,7 @@
 const { BufferClient, BufferStream } = require('../lib/buffer-socket');
 const { CODE, EMPTY_BUFFER } = require('./constant');
 
-class DBClient {
+class Client {
   constructor(options) {
     this.client = new BufferClient(options);
   }
@@ -19,10 +19,10 @@ class DBClient {
     stream.writeInt(code);
     stream.writeInt(reverse ? 1 : 0);
     stream.writeInt(limit);
-    stream.writeBuffer(gt);
-    stream.writeBuffer(gte);
-    stream.writeBuffer(lte);
-    stream.writeBuffer(lt);
+    stream.writeBuffer(Buffer.from(gt));
+    stream.writeBuffer(Buffer.from(gte));
+    stream.writeBuffer(Buffer.from(lte));
+    stream.writeBuffer(Buffer.from(lt));
 
     return stream;
   }
@@ -133,4 +133,4 @@ class DBClient {
   }
 }
 
-module.exports = DBClient;
+module.exports = Client;

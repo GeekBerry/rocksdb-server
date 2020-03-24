@@ -1,2 +1,2 @@
-module.exports.DBServer = require('./DBServer');
-module.exports.DBClient = require('./DBClient');
+module.exports.Server = require('./Server');
+module.exports.Client = require('./Client');
