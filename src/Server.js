@@ -4,6 +4,12 @@ const { BufferServer } = require('../lib/buffer-socket');
 const { CODE } = require('./constant');
 
 class Server {
+  /**
+   * @param options {object}
+   * @param options.host {string}
+   * @param options.port {number}
+   * @param options.location {string}
+   */
   constructor(options) {
     this.database = new RocksDB(options);
     this.server = new BufferServer(options, this.middleware.bind(this));

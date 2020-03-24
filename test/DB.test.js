@@ -1,45 +1,25 @@
 const { Server, Client } = require('../src');
-const { EMPTY_BUFFER } = require('../src/constant');
 
 let server;
 let client;
 
 beforeAll(async () => {
   server = new Server({ host: '127.0.0.1', port: 6081, location: './testDBServerData' });
-  client = new Client({ host: '127.0.0.1', port: 6081 });
+  client = new Client({ host: '127.0.0.1', port: 6081, asBuffer: false });
 
   await server.database.clear();
 });
 
 test('set get del', async () => {
-  let ret;
+  expect(await client.get('key')).toEqual(undefined);
 
-  ret = await client.get('key');
-  expect(ret).toEqual(undefined);
+  expect(await client.set('key', 'value')).toEqual(undefined);
 
-  ret = await client.set('key', '');
-  expect(ret).toEqual(undefined);
+  expect(await client.get('key')).toEqual('value');
 
-  ret = await client.get('key');
-  expect(ret).toEqual(EMPTY_BUFFER);
+  expect(await client.del('key')).toEqual(undefined);
 
-  ret = await client.set('key', 'v1');
-  expect(ret).toEqual(undefined);
-
-  ret = await client.get('key');
-  expect(ret).toEqual(Buffer.from('v1'));
-
-  ret = await client.set(Buffer.from('key'), Buffer.from('v2'));
-  expect(ret).toEqual(undefined);
-
-  ret = await client.get('key');
-  expect(ret).toEqual(Buffer.from('v2'));
-
-  ret = await client.del('key');
-  expect(ret).toEqual(undefined);
-
-  ret = await client.get('key');
-  expect(ret).toEqual(undefined);
+  expect(await client.get('key')).toEqual(undefined);
 });
 
 test('batch list', async () => {
@@ -57,36 +37,36 @@ test('batch list', async () => {
 
   ret = await client.list();
   expect(ret).toEqual([
-    { key: Buffer.from('key1'), value: Buffer.from('value1') },
-    { key: Buffer.from('key3'), value: Buffer.from('value3') },
-    { key: Buffer.from('key4'), value: Buffer.from('value4') },
-    { key: Buffer.from('key5'), value: Buffer.from('value5') },
+    { key: 'key1', value: 'value1' },
+    { key: 'key3', value: 'value3' },
+    { key: 'key4', value: 'value4' },
+    { key: 'key5', value: 'value5' },
   ]);
 
   ret = await client.list({ reverse: true });
   expect(ret).toEqual([
-    { key: Buffer.from('key5'), value: Buffer.from('value5') },
-    { key: Buffer.from('key4'), value: Buffer.from('value4') },
-    { key: Buffer.from('key3'), value: Buffer.from('value3') },
-    { key: Buffer.from('key1'), value: Buffer.from('value1') },
+    { key: 'key5', value: 'value5' },
+    { key: 'key4', value: 'value4' },
+    { key: 'key3', value: 'value3' },
+    { key: 'key1', value: 'value1' },
   ]);
 
   ret = await client.list({ limit: 2 });
   expect(ret).toEqual([
-    { key: Buffer.from('key1'), value: Buffer.from('value1') },
-    { key: Buffer.from('key3'), value: Buffer.from('value3') },
+    { key: 'key1', value: 'value1' },
+    { key: 'key3', value: 'value3' },
   ]);
 
   ret = await client.list({ gte: 'key1', lte: 'key4' });
   expect(ret).toEqual([
-    { key: Buffer.from('key1'), value: Buffer.from('value1') },
-    { key: Buffer.from('key3'), value: Buffer.from('value3') },
-    { key: Buffer.from('key4'), value: Buffer.from('value4') },
+    { key: 'key1', value: 'value1' },
+    { key: 'key3', value: 'value3' },
+    { key: 'key4', value: 'value4' },
   ]);
 
   ret = await client.list({ gt: 'key1', lt: 'key4' });
   expect(ret).toEqual([
-    { key: Buffer.from('key3'), value: Buffer.from('value3') },
+    { key: 'key3', value: 'value3' },
   ]);
 
   ret = await client.clear({ gt: 'key1', lt: 'key4' });
@@ -94,13 +74,13 @@ test('batch list', async () => {
 
   ret = await client.list();
   expect(ret).toEqual([
-    { key: Buffer.from('key1'), value: Buffer.from('value1') },
-    { key: Buffer.from('key4'), value: Buffer.from('value4') },
-    { key: Buffer.from('key5'), value: Buffer.from('value5') },
+    { key: 'key1', value: 'value1' },
+    { key: 'key4', value: 'value4' },
+    { key: 'key5', value: 'value5' },
   ]);
 
-  expect(await client.keys()).toEqual([Buffer.from('key1'), Buffer.from('key4'), Buffer.from('key5')]);
-  expect(await client.values()).toEqual([Buffer.from('value1'), Buffer.from('value4'), Buffer.from('value5')]);
+  expect(await client.keys()).toEqual(['key1', 'key4', 'key5']);
+  expect(await client.values()).toEqual(['value1', 'value4', 'value5']);
 });
 
 afterAll(async () => {

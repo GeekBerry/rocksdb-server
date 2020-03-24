@@ -2,8 +2,16 @@ const { BufferClient, BufferStream } = require('../lib/buffer-socket');
 const { CODE, EMPTY_BUFFER } = require('./constant');
 
 class Client {
-  constructor(options) {
-    this.client = new BufferClient(options);
+  /**
+   * @param options {object}
+   * @param [options.asBuffer=true] {boolean}
+   * @param rest.host {string}
+   * @param rest.port {number}
+   */
+  constructor({ asBuffer = true, ...rest }) {
+    this.client = new BufferClient(rest);
+
+    this.asBuffer = asBuffer;
   }
 
   _writeFilter(code, {
@@ -83,7 +91,13 @@ class Client {
     input.writeBuffer(Buffer.from(key));
 
     const output = await this.client.request(input.toBuffer());
-    return output.length ? output.readBuffer() : undefined;
+
+    let value = output.length ? output.readBuffer() : undefined;
+    if (!this.asBuffer) {
+      value = (value === undefined) ? undefined : value.toString();
+    }
+
+    return value;
   }
 
   async list(filter) {
@@ -94,8 +108,13 @@ class Client {
     const length = output.readInt();
     const array = [];
     for (let i = 0; i < length; i += 1) {
-      const key = output.readBuffer();
-      const value = output.readBuffer();
+      let key = output.readBuffer();
+      let value = output.readBuffer();
+      if (!this.asBuffer) {
+        key = key.toString();
+        value = value.toString();
+      }
+
       array.push({ key, value });
     }
     return array;
@@ -109,7 +128,12 @@ class Client {
     const length = output.readInt();
     const array = [];
     for (let i = 0; i < length; i += 1) {
-      array.push(output.readBuffer());
+      let key = output.readBuffer();
+      if (!this.asBuffer) {
+        key = key.toString();
+      }
+
+      array.push(key);
     }
     return array;
   }
@@ -122,7 +146,12 @@ class Client {
     const length = output.readInt();
     const array = [];
     for (let i = 0; i < length; i += 1) {
-      array.push(output.readBuffer());
+      let value = output.readBuffer();
+      if (!this.asBuffer) {
+        value = value.toString();
+      }
+
+      array.push(value);
     }
     return array;
   }
