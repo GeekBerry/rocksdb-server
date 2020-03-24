@@ -1,6 +1,6 @@
 {
   "name": "@geekberry/rocksdb-server",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "author": "<geekberry@qq.com>",
   "license": "MIT",
   "repository": "https://github.com/GeekBerry/rocksdb-server.git",
