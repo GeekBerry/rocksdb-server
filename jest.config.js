@@ -1,6 +1,6 @@
 module.exports = {
   collectCoverage: true,
-  coverageDirectory: './coverage',
+  coverageDirectory: './COVERAGE',
   coverageReporters: ['html'],
   testEnvironment: 'node',
   testMatch: ['./**/**.test.js'],

@@ -2,19 +2,30 @@
 
 Rocksdb server and client base on websocket.
 
+## Install
+
+```shell script
+yarn add @geekberry/rocksdb @geekberry/rocksdb-server
+```
+
 ## Usage
 
 * Server
 
 ```javascript
-const server = new Server({ host: '127.0.0.1', port: 2222, location: './data' });
+const Database = require('@geekberry/rocksdb'); // you need install level db you self
+// const Database = require('@geekberry/leveldb'); // or use level db
+const { Server } = require('@geekberry/rocksdb-server');
+
+const database = new Database({ location: './data' });
+const server = new Server({ host: '127.0.0.1', port: 2222, database }); // server start listen on created
 ```
 
 * Client
 
 ```javascript
 async function main() {
-  const client = new Client({ host: '127.0.0.1', port: 2222 });
+  const client = new Client({ host: '127.0.0.1', port: 2222, asBuffer: false });
 
   const value  = await client.get('key');
   console.log(value);

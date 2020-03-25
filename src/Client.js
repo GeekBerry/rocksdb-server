@@ -1,5 +1,5 @@
-const { BufferClient, BufferStream } = require('../lib/buffer-socket');
-const { CODE, EMPTY_BUFFER } = require('./constant');
+const { Client: BufferClient, Stream } = require('@geekberry/buffer-socket');
+const { CODE, EMPTY_BUFFER } = require('./util');
 
 class Client {
   /**
@@ -22,7 +22,7 @@ class Client {
     lte = EMPTY_BUFFER,
     lt = EMPTY_BUFFER,
   } = {}) {
-    const stream = new BufferStream();
+    const stream = new Stream();
 
     stream.writeInt(code);
     stream.writeInt(reverse ? 1 : 0);
@@ -37,7 +37,7 @@ class Client {
 
   // --------------------------------------------------------------------------
   async set(key, value) {
-    const input = new BufferStream();
+    const input = new Stream();
     input.writeInt(CODE.SET);
     input.writeBuffer(Buffer.from(key));
     input.writeBuffer(Buffer.from(value));
@@ -46,7 +46,7 @@ class Client {
   }
 
   async del(key) {
-    const input = new BufferStream();
+    const input = new Stream();
     input.writeInt(CODE.DEL);
     input.writeBuffer(Buffer.from(key));
 
@@ -54,7 +54,7 @@ class Client {
   }
 
   async batch(array) {
-    const input = new BufferStream();
+    const input = new Stream();
     input.writeInt(CODE.BATCH);
     input.writeInt(array.length);
 
@@ -86,7 +86,7 @@ class Client {
 
   // --------------------------------------------------------------------------
   async get(key) {
-    const input = new BufferStream();
+    const input = new Stream();
     input.writeInt(CODE.GET);
     input.writeBuffer(Buffer.from(key));
 

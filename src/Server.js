@@ -1,18 +1,18 @@
 const assert = require('assert');
-const RocksDB = require('../lib/RocksDB');
-const { BufferServer } = require('../lib/buffer-socket');
-const { CODE } = require('./constant');
+const { Server: BufferServer } = require('@geekberry/buffer-socket');
+const { CODE } = require('./util');
 
 class Server {
   /**
    * @param options {object}
-   * @param options.host {string}
-   * @param options.port {number}
-   * @param options.location {string}
+   * @param options.database {object}
+   * @param rest.host {string}
+   * @param rest.port {number}
    */
-  constructor(options) {
-    this.database = new RocksDB(options);
-    this.server = new BufferServer(options, this.middleware.bind(this));
+  constructor({ database, ...rest }) {
+    assert(database, 'database must be instance of LevelDB'); // TODO LevelDB interface
+    this.database = database;
+    this.server = new BufferServer(rest, this.middleware.bind(this));
 
     this.CODE_TO_METHOD = {
       [CODE.SET]: this.onSet.bind(this),
@@ -67,19 +67,13 @@ class Server {
     const length = input.readInt();
     for (let i = 0; i < length; i += 1) {
       const code = input.readInt();
-      let key;
-      let value;
-
       switch (code) {
         case CODE.SET:
-          key = input.readBuffer();
-          value = input.readBuffer();
-          array.push({ type: 'put', key, value });
+          array.push({ type: 'put', key: input.readBuffer(), value: input.readBuffer() });
           break;
 
         case CODE.DEL:
-          key = input.readBuffer();
-          array.push({ type: 'del', key });
+          array.push({ type: 'del', key: input.readBuffer() });
           break;
 
         default:
@@ -101,7 +95,7 @@ class Server {
 
     const value = await this.database.get(key);
     if (value !== undefined) {
-      output.writeBuffer(value);
+      output.writeBuffer(Buffer.from(value));
     }
   }
 
@@ -111,8 +105,8 @@ class Server {
 
     output.writeInt(array.length);
     array.forEach(({ key, value }) => {
-      output.writeBuffer(key);
-      output.writeBuffer(value);
+      output.writeBuffer(Buffer.from(key));
+      output.writeBuffer(Buffer.from(value));
     });
   }
 
@@ -122,7 +116,7 @@ class Server {
 
     output.writeInt(keys.length);
     keys.forEach(key => {
-      output.writeBuffer(key);
+      output.writeBuffer(Buffer.from(key));
     });
   }
 
@@ -132,12 +126,13 @@ class Server {
 
     output.writeInt(values.length);
     values.forEach(value => {
-      output.writeBuffer(value);
+      output.writeBuffer(Buffer.from(value));
     });
   }
 
   async close() {
     await this.server.close();
+    await this.database.close();
   }
 }
 

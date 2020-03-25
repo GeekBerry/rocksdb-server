@@ -12,20 +12,21 @@
   ],
   "main": "src/index.js",
   "files": [
-    "lib",
     "src"
   ],
   "dependencies": {
-    "rocksdb": "^4.1.0"
+    "@geekberry/buffer-socket": "0.0.1"
   },
   "devDependencies": {
+    "@geekberry/leveldb": "^0.0.1",
+    "@geekberry/rocksdb": "^0.0.1",
     "eslint": "^6.3.0",
     "eslint-config-airbnb-base": "^14.0.0",
     "eslint-plugin-import": "^2.18.2",
     "jest": "^25.1.0"
   },
   "scripts": {
-    "eslint": "eslint ./lib ./src ./test",
+    "eslint": "eslint ./src ./test",
     "test": "jest",
     "public": "yarn publish --access=public"
   }

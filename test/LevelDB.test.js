@@ -1,10 +1,13 @@
+const LevelDB = require('@geekberry/leveldb');
 const { Server, Client } = require('../src');
 
 let server;
 let client;
 
 beforeAll(async () => {
-  server = new Server({ host: '127.0.0.1', port: 6081, location: './testDBServerData' });
+  const database = new LevelDB({ location: './DB_LEVEL' });
+
+  server = new Server({ host: '127.0.0.1', port: 6081, database });
   client = new Client({ host: '127.0.0.1', port: 6081, asBuffer: false });
 
   await server.database.clear();
@@ -110,5 +113,5 @@ afterAll(async () => {
   await server.close();
   // await client.close(); once server close, all client should be close
 
-  await server.database.destroy();
+  // await server.database.destroy();
 });
