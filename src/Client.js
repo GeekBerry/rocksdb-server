@@ -42,7 +42,7 @@ class Client {
     input.writeBuffer(Buffer.from(key));
     input.writeBuffer(Buffer.from(value));
 
-    await this.client.request(input.toBuffer());
+    await this.client.request(input);
   }
 
   async del(key) {
@@ -50,7 +50,7 @@ class Client {
     input.writeInt(CODE.DEL);
     input.writeBuffer(Buffer.from(key));
 
-    await this.client.request(input.toBuffer());
+    await this.client.request(input);
   }
 
   async batch(array) {
@@ -76,12 +76,12 @@ class Client {
       }
     });
 
-    await this.client.request(input.toBuffer());
+    await this.client.request(input);
   }
 
   async clear(filter) {
     const input = this._writeFilter(CODE.CLEAR, filter);
-    await this.client.request(input.toBuffer());
+    await this.client.request(input);
   }
 
   // --------------------------------------------------------------------------
@@ -90,7 +90,7 @@ class Client {
     input.writeInt(CODE.GET);
     input.writeBuffer(Buffer.from(key));
 
-    const output = await this.client.request(input.toBuffer());
+    const output = await this.client.request(input);
 
     let value = output.length ? output.readBuffer() : undefined;
     if (!this.asBuffer) {
@@ -103,7 +103,7 @@ class Client {
   async list(filter) {
     const input = this._writeFilter(CODE.LIST, filter);
 
-    const output = await this.client.request(input.toBuffer());
+    const output = await this.client.request(input);
 
     const length = output.readInt();
     const array = [];
@@ -123,7 +123,7 @@ class Client {
   async keys(filter) {
     const input = this._writeFilter(CODE.KEYS, filter);
 
-    const output = await this.client.request(input.toBuffer());
+    const output = await this.client.request(input);
 
     const length = output.readInt();
     const array = [];
@@ -141,7 +141,7 @@ class Client {
   async values(filter) {
     const input = this._writeFilter(CODE.VALUES, filter);
 
-    const output = await this.client.request(input.toBuffer());
+    const output = await this.client.request(input);
 
     const length = output.readInt();
     const array = [];

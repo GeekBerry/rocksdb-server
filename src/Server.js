@@ -6,19 +6,20 @@ class Server {
   /**
    * @param options {object}
    * @param options.database {object}
+   * @param options.readOnly {boolean}
    * @param rest.host {string}
    * @param rest.port {number}
    */
-  constructor({ database, ...rest }) {
+  constructor({ database, readOnly, ...rest }) {
     assert(database, 'database must be instance of LevelDB'); // TODO LevelDB interface
     this.database = database;
     this.server = new BufferServer(rest, this.middleware.bind(this));
 
     this.CODE_TO_METHOD = {
-      [CODE.SET]: this.onSet.bind(this),
-      [CODE.DEL]: this.onDel.bind(this),
-      [CODE.BATCH]: this.onBatch.bind(this),
-      [CODE.CLEAR]: this.onClear.bind(this),
+      [CODE.SET]: readOnly ? this.onReadOnly.bind(this) : this.onSet.bind(this),
+      [CODE.DEL]: readOnly ? this.onReadOnly.bind(this) : this.onDel.bind(this),
+      [CODE.BATCH]: readOnly ? this.onReadOnly.bind(this) : this.onBatch.bind(this),
+      [CODE.CLEAR]: readOnly ? this.onReadOnly.bind(this) : this.onClear.bind(this),
 
       [CODE.GET]: this.onGet.bind(this),
       [CODE.LIST]: this.onList.bind(this),
@@ -48,6 +49,12 @@ class Server {
     await method(input, output);
   }
 
+  // --------------------------------------------------------------------------
+  onReadOnly() {
+    throw new Error('server is read only');
+  }
+
+  // --------------------------------------------------------------------------
   async onSet(input) {
     const key = input.readBuffer();
     const value = input.readBuffer();
@@ -130,6 +137,7 @@ class Server {
     });
   }
 
+  // --------------------------------------------------------------------------
   async close() {
     await this.server.close();
     await this.database.close();

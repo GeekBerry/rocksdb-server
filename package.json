@@ -15,7 +15,7 @@
     "src"
   ],
   "dependencies": {
-    "@geekberry/buffer-socket": "0.0.1"
+    "@geekberry/buffer-socket": "0.0.2"
   },
   "devDependencies": {
     "@geekberry/leveldb": "^0.0.1",
